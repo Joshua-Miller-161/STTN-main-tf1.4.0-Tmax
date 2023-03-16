@@ -42,15 +42,12 @@ def seq_gen(data_seq, n_frame, C_0=1):
 
     print(" =====", np.shape(data_seq)[0], n_frame, np.shape(data_seq)[1], C_0)
     sequences = np.zeros((np.shape(data_seq)[0] - n_frame, n_frame, np.shape(data_seq)[1], C_0))
-    for i in range(np.shape(sequences)[0]):
-        temp_seq = []
-        for j in range(n_frame):
-            temp_seq.append(data_seq[i + j])
 
-            print('i =', i, ', j =', j, ', n_frame =', n_frame, ', temp_seq =', np.shape(temp_seq), ', data_seq =', np.shape(data_seq))
-            
-        temp_seq = np.asarray(temp_seq)
-        print(" =====", np.shape(temp_seq), np.shape(temp_seq.reshape(np.shape(temp_seq)[0], np.shape(temp_seq)[1], 1)))
+    for i in range(np.shape(sequences)[0]):
+        temp_seq = data_seq[i:i+n_frame, ...]
+
+        print('i =', i, ', i+n_frame =', i + n_frame, ', n_frame =', n_frame, ', temp_seq =', np.shape(temp_seq), np.shape(temp_seq.reshape(np.shape(temp_seq)[0], np.shape(temp_seq)[1], 1)), ', data_seq =', np.shape(data_seq))
+
         sequences[i, ...] = temp_seq.reshape(np.shape(temp_seq)[0], np.shape(temp_seq)[1], 1)
     return sequences
 
@@ -82,7 +79,7 @@ def data_gen(file_path, data_config, n_frame=21):
     ''' Split into training, validation, and test datasets '''
     seq_train, seq_val, seq_test = train_val_test_split(sequences, train_ratio, val_ratio, test_ratio)
 
-    print(" ------------------------------------ = ", np.shape(seq_train), np.shape(seq_val), np.shape(seq_test))
+    print(" ------------------------------------ ", np.shape(seq_train), np.shape(seq_val), np.shape(seq_test))
 
     # x_stats: dict, the stats for the train dataset, including the value of mean and standard deviation.
     x_stats = {'mean': np.mean(seq_train), 'std': np.std(seq_train)}
