@@ -53,20 +53,23 @@ Ks, Kt = args.ks, args.kt
 blocks=[[64,64]]
 
 ''' Read in tempurature data '''
-df = pd.read_csv('./data_loader/data/tmax_2016_1_1-2016_12_31_krig_grid.csv')
-print(df.head())
-df = df.values
-print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~', np.shape(df))
-lon = df[::10, 0]
-lat = df[::10, 1]
-tmax = df[::10, 2:] # (spatial samples, time)
+df     = pd.read_csv('./data_loader/data/tmax_Alatna_2016_1_1-2016_12_31_krig_grid.csv')
+lon_df = pd.read_csv('./data_loader/data/tmax_lon_Alatna_krig_grid.csv')
+lat_df = pd.read_csv('./data_loader/data/tmax_lat_Alatna_krig_grid.csv')
 
-del(df)
-print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~', np.shape(lat), np.shape(lon), np.shape(tmax))
+tmax = Scale(df.values + 273.15, 'maxabs') # Convert Celcius to Kelvin and scale it
+lon  = lon_df.values
+lat  = lat_df.values
+print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~', np.shape(tmax), np.shape(lon), np.shape(lat))
+
+''' Downsample spatial component '''
+tmax = tmax[::10, :] # (spatial samples, time)
+lon  = lon_df[::10]
+lat  = lat_df[::10]
+
+print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~', np.shape(tmax), np.shape(lat), np.shape(lon))
 print("READ CSV")
 
-tmax = pd.DataFrame(tmax.T) # Make time the first axis
-tmax.to_csv('./data_loader/data/tmax_only_2016_1_1-2016_12_31_krig_grid.csv', index=False)
 
 ''' Load/create distance matrix (if needed) '''
 dist_matrix_path = './data_loader/data/distance_matrix.csv'
@@ -105,14 +108,15 @@ Lk = cheb_poly_approx(L, Ks, n)
 tf.add_to_collection(name='graph_kernel', value=tf.cast(tf.constant(Lk), tf.float32))
 
 # Data Preprocessing
-data_file = 'tmax_only_2016_1_1-2016_12_31_krig_grid.csv'
+data_file = 'tmax_2016_1_1-2016_12_31_krig_grid.csv'
+
 train_ratio, val_ratio, test_ratio = .7, .15, .15
 
 tmax_Dataset = data_gen(pjoin('./data_loader/data/', data_file), (train_ratio, val_ratio, test_ratio), n_his + n_pred)
 print(f'>> Loading dataset with Mean: {tmax_Dataset.mean:.2f}, STD: {tmax_Dataset.std:.2f}')
 
 if __name__ == '__main__':
-    #model_train(tmax_Dataset, blocks, args)
+    model_train(tmax_Dataset, blocks, args)
     print('==============================================================')
     print('==============================================================')
     model_test(tmax_Dataset,args.batch_size, n_his, n_pred, args.inf_mode, plot=False, lon=lon, lat=lat)
