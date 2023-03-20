@@ -6,6 +6,9 @@
 # @Github   : https://github.com/VeritasYin/Project_Orion
 
 import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.colors import Normalize
+from matplotlib.colors import LinearSegmentedColormap
 
 
 def z_score(x, mean, std):
@@ -67,17 +70,62 @@ def MAE(v, v_):
     return np.mean(np.abs(v_ - v))
 
 
-def evaluation(y, y_, x_stats):
+def evaluation(y, y_, x_stats, plot=False, lon=None, lat=None):
     '''
     Evaluation function: interface to calculate MAPE, MAE and RMSE between ground truth and prediction.
     Extended version: multi-step prediction can be calculated by self-calling.
     :param y: np.ndarray or int, ground truth.
     :param y_: np.ndarray or int, prediction.
+    :param lon: ndarray, Same shape as the spatial dim of y and y_. Used to plot
+    :param lat: ndarray, Same shape as the spatial dim of y and y_. Used to plot
     :param x_stats: dict, paras of z-scores (mean & std).
     :return: np.ndarray, averaged metric values.
     '''
     dim = len(y_.shape)
     print('y:{},y_:{}'.format(y.shape,y_.shape))
+
+    #======================================================================
+    ''' Plot results to help assess model performance '''
+    if plot:
+        curr_y  = y[-1, ...].ravel()
+        curr_y_ = y_[-1, ...].ravel()
+
+        min_lat = min(lat.ravel())
+        max_lat = max(lat.ravel())
+        max_lon = max(lon.ravel())
+        min_lon = min(lon.ravel())
+
+        min_pred = min(curr_y_.ravel())
+        max_pred = max(curr_y_.ravel())
+
+        min_targ = min(curr_y.ravel())
+        max_targ = max(curr_y.ravel())
+
+        norm_pred = Normalize(vmin=min_pred, vmax=max_pred)
+        cmap_pred = LinearSegmentedColormap.from_list('custom', ['blue', 'red'], N=200) # Higher N=more smooth
+
+        norm_targ = Normalize(vmin=min_targ, vmax=max_targ)
+        cmap_targ = LinearSegmentedColormap.from_list('custom', ['blue', 'red'], N=200) # Higher N=more smooth 
+
+        fig, ax = plt.subplots(2, 1, figsize=(6, 6))
+        fig.tight_layout(pad=3)
+
+        ax[0].set_xlim(min_lon - .1, max_lon + .1)
+        ax[1].set_xlim(min_lon - .1, max_lon + .1)
+        ax[0].set_ylim(min_lat - .1, max_lat + .1)
+        ax[1].set_ylim(min_lat - .1, max_lat + .1)
+
+        ax[0].set_title('Data')
+        ax[1].set_title('Prediction')
+
+        targ = ax[0].scatter(x=lon, y=lat, c=curr_y, s=25, marker='s', cmap=cmap_targ, norm=norm_targ, alpha=1)
+        pred = ax[1].scatter(x=lon, y=lat, c=curr_y_, s=25, marker='s', cmap=cmap_pred, norm=norm_pred, alpha=1)
+        
+        plt.colorbar(targ, ax=ax[0])
+        plt.colorbar(pred, ax=ax[1])
+
+        plt.show()
+    #======================================================================
     if dim == 3:
         # single_step case
         v = z_inverse(y, x_stats['mean'], x_stats['std'])

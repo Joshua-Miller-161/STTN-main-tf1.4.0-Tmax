@@ -14,6 +14,7 @@ import numpy as np
 import time
 
 
+
 def multi_pred(sess, y_pred, seq, batch_size, n_his, n_pred, step_idx,x_stats, dynamic_batch=True):
     '''
     Multi_prediction function.
@@ -87,7 +88,7 @@ def model_inference(sess, pred, inputs, batch_size, n_his, n_pred, step_idx, min
     return min_va_val, min_val
 
 
-def model_test(inputs, batch_size, n_his, n_pred, inf_mode, load_path='./output/models/'):
+def model_test(inputs, batch_size, n_his, n_pred, inf_mode, load_path='./output/models/', plot=False, lon=None, lat=None):
     '''
     Load and test saved model from the checkpoint.
     :param inputs: instance of class Dataset, data source for test.
@@ -96,6 +97,9 @@ def model_test(inputs, batch_size, n_his, n_pred, inf_mode, load_path='./output/
     :param n_pred: int, the length of prediction.
     :param inf_mode: str, test mode - 'merge / multi-step test' or 'separate / single-step test'.
     :param load_path: str, the path of loaded model.
+    :param plot: bool, If True, will draw a plot of the prediction and actual data
+    :param lon: ndarray, The longitude values
+    :param lat: ndarray, The latitude values
     '''
     start_time = time.time()
     model_path = tf.train.get_checkpoint_state(load_path).model_checkpoint_path
@@ -124,10 +128,14 @@ def model_test(inputs, batch_size, n_his, n_pred, inf_mode, load_path='./output/
         x_test, x_stats = inputs.get_data('test'), inputs.get_stats()
         print('stats:{}'.format(x_stats))
         y_test, len_test = multi_pred(test_sess, pred, x_test, batch_size, n_his,n_pred, step_idx, x_stats)
+        
+        
+        print('~+~+~+~+~+~+~+~+~+~ y_test =', np.shape(y_test))
+        
         np.save('y_groundtruth',x_test[0:len_test, step_idx + n_his, :, :])
         np.save('y_prediction',y_test)
         labels=x_test[0:len_test, step_idx + n_his, :, 0]
-        evl = evaluation(labels, y_test, x_stats)
+        evl = evaluation(labels, y_test, x_stats, plot=True, lon=lon, lat=lat)
 
         for ix in tmp_idx:
             te = evl[ix - 2:ix + 1]

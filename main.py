@@ -26,7 +26,6 @@ from models.tester import model_test
 import pandas as pd
 import argparse
 
-
 parser = argparse.ArgumentParser()
 parser.add_argument('--n_route', type=int, default=350)
 parser.add_argument('--n_his', type=int, default=12)
@@ -113,5 +112,7 @@ tmax_Dataset = data_gen(pjoin('./data_loader/data/', data_file), (train_ratio, v
 print(f'>> Loading dataset with Mean: {tmax_Dataset.mean:.2f}, STD: {tmax_Dataset.std:.2f}')
 
 if __name__ == '__main__':
-    model_train(tmax_Dataset, blocks, args)
-    model_test(tmax_Dataset,args.batch_size, n_his, n_pred, args.inf_mode)
+    #model_train(tmax_Dataset, blocks, args)
+    print('==============================================================')
+    print('==============================================================')
+    model_test(tmax_Dataset,args.batch_size, n_his, n_pred, args.inf_mode, plot=False, lon=lon, lat=lat)
