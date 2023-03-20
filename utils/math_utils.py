@@ -6,6 +6,7 @@
 # @Github   : https://github.com/VeritasYin/Project_Orion
 
 import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.colors import Normalize
 from matplotlib.colors import LinearSegmentedColormap
@@ -87,44 +88,51 @@ def evaluation(y, y_, x_stats, plot=False, lon=None, lat=None):
     #======================================================================
     ''' Plot results to help assess model performance '''
     if plot:
-        curr_y  = y[-1, ...].ravel()
-        curr_y_ = y_[-1, ...].ravel()
+        curr_y  = y[-1, -1, ...].ravel()
+        curr_y_ = y_[-1, -1, ...].ravel()
+
+        print('matplotlib.__version__', matplotlib.__version__)
+        print('~+~+~+~+~+~+~+~+~+~ lon =', np.shape(lon))
+        print('~+~+~+~+~+~+~+~+~+~ lat =', np.shape(lat))
+        print('~+~+~+~+~+~+~+~+~+~ curr_y =', np.shape(curr_y))
+        print('~+~+~+~+~+~+~+~+~+~ curr_y_ =', np.shape(curr_y_))
 
         min_lat = min(lat.ravel())
         max_lat = max(lat.ravel())
         max_lon = max(lon.ravel())
         min_lon = min(lon.ravel())
-
+        print('1')
         min_pred = min(curr_y_.ravel())
         max_pred = max(curr_y_.ravel())
-
+        print('2')
         min_targ = min(curr_y.ravel())
         max_targ = max(curr_y.ravel())
-
+        print('3')
         norm_pred = Normalize(vmin=min_pred, vmax=max_pred)
         cmap_pred = LinearSegmentedColormap.from_list('custom', ['blue', 'red'], N=200) # Higher N=more smooth
-
+        print('4')
         norm_targ = Normalize(vmin=min_targ, vmax=max_targ)
         cmap_targ = LinearSegmentedColormap.from_list('custom', ['blue', 'red'], N=200) # Higher N=more smooth 
-
+        print('5')
         fig, ax = plt.subplots(2, 1, figsize=(6, 6))
         fig.tight_layout(pad=3)
-
+        print('6')
         ax[0].set_xlim(min_lon - .1, max_lon + .1)
         ax[1].set_xlim(min_lon - .1, max_lon + .1)
         ax[0].set_ylim(min_lat - .1, max_lat + .1)
         ax[1].set_ylim(min_lat - .1, max_lat + .1)
-
+        print('7')
         ax[0].set_title('Data')
         ax[1].set_title('Prediction')
-
+        print('8')
         targ = ax[0].scatter(x=lon, y=lat, c=curr_y, s=25, marker='s', cmap=cmap_targ, norm=norm_targ, alpha=1)
         pred = ax[1].scatter(x=lon, y=lat, c=curr_y_, s=25, marker='s', cmap=cmap_pred, norm=norm_pred, alpha=1)
-        
+        print('9')
         plt.colorbar(targ, ax=ax[0])
         plt.colorbar(pred, ax=ax[1])
-
+        print('10')
         plt.show()
+        print('11')
     #======================================================================
     if dim == 3:
         # single_step case

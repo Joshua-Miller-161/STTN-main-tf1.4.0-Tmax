@@ -72,6 +72,9 @@ def data_gen(file_path, data_config, n_frame=21):
 
     print(" ----------------- np.shape(data_seq) = ", np.shape(data_seq)) # (365, 350)
 
+    print(' ()()()()()()()()() min_tmax =', min(data_seq.ravel().ravel().ravel()))
+    print(' ()()()()()()()()() max_tmax =', max(data_seq.ravel().ravel().ravel()))
+
     ''' Get all the sequences of lenght n_frame '''
     sequences = seq_gen(data_seq, n_frame)
 
@@ -171,3 +174,35 @@ def train_val_test_split(data, train_ratio, val_ratio, test_ratio, random_state=
         test_arr[i - (num_train + num_val), ...] = data[idx[i], ...]
 
     return train_arr, val_arr, test_arr
+
+
+def Scale(data, reference, method='standard'):
+    '''
+    This function scales the data, either using the StandardScaler or MaxAbsScaler
+    :param data: nparray, the data to be scaled 
+    :param reference: nparray, what to use as a reference for the scaler, must be same size as data
+    :param method: str, either 'standard' or 'maxabs', chooses the scaling method
+    '''
+    data = np.array(data)
+    reference = np.array(reference)
+
+    orig_shape = np.shape(data)
+    print("-0-0-0-0-0-0-0-0-0-0-0-0- np.shape(data) =", np.shape(data), ", np.shape(reference) =", np.shape(reference), ', orig_shape =', orig_shape)
+    if method == 'standard': # Makes mean = 0, stdev = 1
+        mu  = np.mean(reference.ravel().ravel().ravel())
+        std = np.std(reference.ravel().ravel().ravel())
+
+        def Scaler(data):
+            return (data - mu) / std
+
+    elif method == 'maxabs': # Divdes by max value, better for sparse data
+        max_ = max(abs(reference.ravel().ravel().ravel()))
+
+        def Scaler(data):
+            return data / max_
+    else:
+        raise ValueError('Invalid method specified. Allowed values are "standard" and "maxabs".')
+    
+    scaled_data = Scaler(data.ravel().ravel().ravel())
+
+    return scaled_data.reshape(orig_shape)

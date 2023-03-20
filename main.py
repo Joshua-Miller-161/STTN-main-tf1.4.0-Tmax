@@ -57,7 +57,7 @@ df     = pd.read_csv('./data_loader/data/tmax_Alatna_2016_1_1-2016_12_31_krig_gr
 lon_df = pd.read_csv('./data_loader/data/tmax_lon_Alatna_krig_grid.csv')
 lat_df = pd.read_csv('./data_loader/data/tmax_lat_Alatna_krig_grid.csv')
 
-tmax = Scale(df.values + 273.15, 'maxabs') # Convert Celcius to Kelvin and scale it
+tmax = Scale(df.values + 273.15, df.values + 273.15, 'maxabs') # Convert Celcius to Kelvin and scale it
 lon  = lon_df.values
 lat  = lat_df.values
 print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~', np.shape(tmax), np.shape(lon), np.shape(lat))
