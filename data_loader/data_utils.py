@@ -46,7 +46,7 @@ def seq_gen(data_seq, n_frame, C_0=1):
     for i in range(np.shape(sequences)[0]):
         temp_seq = data_seq[i:i+n_frame, ...]
 
-        print('i =', i, ', i+n_frame =', i + n_frame, ', n_frame =', n_frame, ', temp_seq =', np.shape(temp_seq), np.shape(temp_seq.reshape(np.shape(temp_seq)[0], np.shape(temp_seq)[1], 1)), ', data_seq =', np.shape(data_seq))
+        #print('i =', i, ', i+n_frame =', i + n_frame, ', n_frame =', n_frame, ', temp_seq =', np.shape(temp_seq), np.shape(temp_seq.reshape(np.shape(temp_seq)[0], np.shape(temp_seq)[1], 1)), ', data_seq =', np.shape(data_seq))
 
         sequences[i, ...] = temp_seq.reshape(np.shape(temp_seq)[0], np.shape(temp_seq)[1], 1)
     return sequences
@@ -65,15 +65,20 @@ def data_gen(file_path, data_config, n_frame=21):
     train_ratio, val_ratio, test_ratio = data_config
     # generate training, validation and test data
     try:
-        data_seq = pd.read_csv(file_path).values
+        data_seq = pd.read_csv(file_path).values.T[:, ::10] # Transpose to (num timesteps, spatial samples), reduce resolution
 
     except FileNotFoundError:
         print(f'ERROR: input file was not found in {file_path}.')
 
     print(" ----------------- np.shape(data_seq) = ", np.shape(data_seq)) # (365, 350)
-
     print(' ()()()()()()()()() min_tmax =', min(data_seq.ravel().ravel().ravel()))
     print(' ()()()()()()()()() max_tmax =', max(data_seq.ravel().ravel().ravel()))
+
+    data_seq = Scale(data_seq + 273.15, data_seq + 273.15, 'maxabs') # Convert Celcius to Kelvin and scale
+    print(" -----SCALED----- np.shape(data_seq) = ", np.shape(data_seq)) # (365, 350)
+    print(' ()()(SCALED)()() min_tmax =', min(data_seq.ravel().ravel().ravel()))
+    print(' ()()(SCALED)()() max_tmax =', max(data_seq.ravel().ravel().ravel()))
+
 
     ''' Get all the sequences of lenght n_frame '''
     sequences = seq_gen(data_seq, n_frame)
