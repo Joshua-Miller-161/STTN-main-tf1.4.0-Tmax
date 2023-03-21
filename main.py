@@ -56,15 +56,17 @@ blocks=[[64,64]]
 lon_df = pd.read_csv('./data_loader/data/tmax_lon_Alatna_krig_grid.csv')
 lat_df = pd.read_csv('./data_loader/data/tmax_lat_Alatna_krig_grid.csv')
 
-lon  = lon_df.values
-lat  = lat_df.values
-print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~', np.shape(lon), np.shape(lat))
+lon  = lon_df['lon'].values
+lat  = lat_df['lat'].values
+print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~ lon =', np.shape(lon), ', lat =', np.shape(lat))
 
 ''' Downsample spatial component '''
-lon  = lon_df[::10]
-lat  = lat_df[::10]
+lon  = lon[::10]
+lat  = lat[::10]
 
-print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~', np.shape(lat), np.shape(lon))
+print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~ lon =', np.shape(lon), ', lat =', np.shape(lat))
+
+print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~ lon =', lon)
 print("READ CSV")
 
 
@@ -81,7 +83,7 @@ else:
 
     dist_matrix = distance_matrix(coords)
     
-    dist_matrix = pd.DataFrame(dist_matrix, header=None)
+    dist_matrix = pd.DataFrame(dist_matrix)
     dist_matrix.to_csv(dist_matrix_path, index=False)
 
     del(dist_matrix)
