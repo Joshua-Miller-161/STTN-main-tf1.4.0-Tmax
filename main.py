@@ -31,7 +31,7 @@ parser.add_argument('--n_route', type=int, default=350)
 parser.add_argument('--n_his', type=int, default=12)
 parser.add_argument('--n_pred', type=int, default=9)
 parser.add_argument('--batch_size', type=int, default=5)
-parser.add_argument('--epoch', type=int, default=5)
+parser.add_argument('--epoch', type=int, default=15) # 15 worked well without any model checkpoints
 parser.add_argument('--save', type=int, default=1)
 parser.add_argument('--ks', type=int, default=3)
 parser.add_argument('--kt', type=int, default=3)
